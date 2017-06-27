@@ -1,9 +1,11 @@
 package com.woakley;
 
 import com.eleet.dragonconsole.CommandProcessor;
+import javafx.beans.binding.IntegerBinding;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.UUID;
 
 /*
  * Created by woakley on 6/25/17.
@@ -15,17 +17,20 @@ public class AirlineCommandProcessor extends CommandProcessor {
     static String username = "javaClient";
     static String password = "java";
 
-    private boolean readyForCommand = true;
-    private int currentCommand = 0;
-    private int step = 0;
+    public static int currentCommand = 0;
+    public static int step = 0;
 
-    private ArrayList<String> data = new ArrayList<String>();
+    public static ArrayList<String> data = new ArrayList<String>();
 
     public Connection connection;
 
     public AirlineCommandProcessor() {
         super();
 
+        openConnection();
+    }
+
+    void openConnection(){
         try {
             connection = DriverManager.getConnection(url, username, password);
         }
@@ -53,12 +58,18 @@ public class AirlineCommandProcessor extends CommandProcessor {
             else if(input.equals("allFlights")){
                 allFlights("");
             }
+            else if(input.equals("newReservation")){
+                newReservation("");
+            }
             else{
                 output("\n&r-Error: Command " + input + " not found.\n&ob>> ");
             }
         }
         else if(currentCommand == 1){
             newFlight(input);
+        }
+        else if(currentCommand == 3){
+            newReservation(input);
         }
     }
 
@@ -148,26 +159,134 @@ public class AirlineCommandProcessor extends CommandProcessor {
             step = 0;
         }
         catch(SQLException e){
-            throw new IllegalStateException("SQL Read Error", e);
+            throw new IllegalStateException("SQL Parse Error", e);
         }
 
+    }
+
+    void newReservation(String input){
+        if(currentCommand == 0){
+            currentCommand = 3;
+            step = 0;
+        }
+
+        ResultSet response;
+
+        switch(step) {
+            case 0:
+                output("\nDeparting Airport: ");
+                break;
+
+            case 1:
+                data.add(input);
+                output("\nArrival Airport: ");
+                break;
+
+            case 2: //searching for all flights
+                data.add(input);
+                response = readSQL("SELECT carrier, fltNum, departs, arrival FROM flight WHERE origin = \"" + data.get(0) + "\" AND destin = \"" + data.get(1) + "\"");
+
+                try{
+                    if(!response.isBeforeFirst()) {
+                        System.out.println("No Flights found");
+                        output("&r-\nNO FLIGHTS FOUND\n");
+                        output("&o->> ");
+                        currentCommand = 0;
+                        step = 0;
+                        break;
+                    }
+                }
+                catch(SQLException e){
+                    throw new IllegalStateException("SQL Query Error", e);
+                }
+
+                try {
+                    ResultSetMetaData flightMetaData = response.getMetaData();
+
+                    output("\n   ");
+                    int numberOfColumns;
+                    for (numberOfColumns = 1; numberOfColumns <= flightMetaData.getColumnCount(); numberOfColumns++) {
+                        output("&c- | " + flightMetaData.getColumnName(numberOfColumns));
+                    }
+                    output(" | \n");
+
+                    ResultSet rows = readSQL("SELECT COUNT(*) FROM flight WHERE origin = \"" + data.get(0) + "\" AND destin = \"" + data.get(1) + "\"");
+                    rows.next();
+                    int numberOfRows = rows.getInt(1);
+
+                    response.next();
+                    for (int y = 1; y < numberOfRows + 1; y++) {
+                        output("&c- "+ y + ": ");
+                        for (int x = 1; x < numberOfColumns; x++) {
+                            output("&y-     " + response.getString(x));
+                            output(" ");
+                        }
+                        output("\n");
+                        response.next();
+                    }
+                    output("\n&o-Pick Flight: ");
+                } catch (SQLException e) {
+                    throw new IllegalStateException("SQL Parse Error", e);
+                }
+                break;
+
+            case 3:
+                data.add(input);
+                response = readSQL("SELECT carrier,fltNum,idflight FROM flight WHERE origin = \"" + data.get(0) + "\" AND destin = \"" + data.get(1) + "\" LIMIT 1 OFFSET " + (Integer.parseInt(data.get(2)) - 1));
+                try{
+                    response.next();
+                    data.add(response.getString(3));
+                    output("\n&g-New Reservation for " + response.getString(1) + " " + response.getString(2));
+                    output("\n&o-Name: ");
+                }
+                catch(SQLException e){
+                    throw new IllegalStateException("SQL Query Error", e);
+                }
+
+                break;
+
+            case 4:
+                data.add(input);
+                output("\nDOB: ");
+                break;
+            case 5:
+                data.add(input);
+                String pnr = UUID.randomUUID().toString();
+                pnr = pnr.substring(0,5);
+                pnr = pnr.toUpperCase();
+                data.add(pnr);
+                System.out.println(data.toString());
+                executeSQL("INSERT INTO reservations VALUES (" + Integer.parseInt(data.get(3)) + ",'" + data.get(4) + "','" + data.get(5) + "','" + data.get(6) + "')");
+                output("\n&g-Successfully created with PNR: &D-" + data.get(6));
+                output("\n&o->> ");
+                currentCommand = 0;
+                step = 0;
+                data.clear();
+                break;
+        }
+        step++;
     }
 
     //----------- * ALL CUSTOM COMMANDS ABOVE THIS LINE * ------------\\
 
     void executeSQL(String sql){
+        System.out.println("Executing: " + sql);
         try{
             Statement stmt = connection.createStatement();
             stmt.executeUpdate(sql);
             System.out.println("Successfully Executed");
         }
         catch(SQLException e){
-            output("\n&r-SQL ERROR");
+            output("\n&r-SQL EXECUTION ERROR\n&ob>> ");
+            currentCommand = 0;
+            step = 0;
+            data.clear();
             throw new IllegalStateException("SQL Query Error", e);
         }
     }
 
-    ResultSet readSQL(String sql){
+    ResultSet readSQL(String sql) {
+        System.out.println("Reading: " + sql);
         try{
             Statement stmt = connection.createStatement();
             ResultSet result = stmt.executeQuery(sql);
@@ -175,7 +294,10 @@ public class AirlineCommandProcessor extends CommandProcessor {
             return result;
         }
         catch(SQLException e){
-            output("\n&r-SQL ERROR");
+            output("\n&r-SQL QUERY ERROR\n&ob>> ");
+            currentCommand = 0;
+            step = 0;
+            data.clear();
             throw new IllegalStateException("SQL Query Error", e);
         }
     }
