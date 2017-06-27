@@ -13,9 +13,9 @@ import java.util.UUID;
 
 public class AirlineCommandProcessor extends CommandProcessor {
 
-    static String url = "jdbc:mysql://localhost:3306/airline";
-    static String username = "javaClient";
-    static String password = "java";
+    static String url = "jdbc:mysql://Wills-MacBook-Pro.local:3306/airline";
+    static String username = "javaClientLaptop";
+    static String password = "1234";
 
     public static int currentCommand = 0;
     public static int step = 0;
@@ -60,6 +60,9 @@ public class AirlineCommandProcessor extends CommandProcessor {
             }
             else if(input.equals("newReservation")){
                 newReservation("");
+            }
+            else if(input.equals("allReservations")){
+                allReservations("");
             }
             else{
                 output("\n&r-Error: Command " + input + " not found.\n&ob>> ");
@@ -256,7 +259,7 @@ public class AirlineCommandProcessor extends CommandProcessor {
                 pnr = pnr.toUpperCase();
                 data.add(pnr);
                 System.out.println(data.toString());
-                executeSQL("INSERT INTO reservations VALUES (" + Integer.parseInt(data.get(3)) + ",'" + data.get(4) + "','" + data.get(5) + "','" + data.get(6) + "')");
+                executeSQL("INSERT INTO reservations VALUES (" + data.get(6) + ",'" + data.get(4) + "','" + data.get(5) + "','" + Integer.parseInt(data.get(3)) + "')");
                 output("\n&g-Successfully created with PNR: &D-" + data.get(6));
                 output("\n&o->> ");
                 currentCommand = 0;
@@ -265,6 +268,50 @@ public class AirlineCommandProcessor extends CommandProcessor {
                 break;
         }
         step++;
+    }
+
+    void allReservations(String input){
+        if(currentCommand == 0){
+            currentCommand = 4;
+            step = 0;
+        }
+
+        ResultSet reservations = readSQL("SELECT * FROM reservations");
+
+        try {
+            ResultSetMetaData reservationMetaData = reservations.getMetaData();
+
+            output("\n");
+            int numberOfColumns;
+            for (numberOfColumns = 1; numberOfColumns < reservationMetaData.getColumnCount(); numberOfColumns++) {
+                output("&c- |      " + reservationMetaData.getColumnName(numberOfColumns));
+                output("        ");
+            }
+            output("| \n");
+
+            ResultSet rows = readSQL("SELECT COUNT(*) FROM reservations");
+            rows.next();
+            int numberOfRows = rows.getInt(1);
+
+            reservations.next();
+
+            for(int y = 1; y < numberOfRows + 1; y++){
+                for(int x = 1; x < numberOfColumns; x++){
+                    output("&y-     " + reservations.getString(x));
+                    output("       ");
+                }
+                output(" \n");
+                reservations.next();
+            }
+
+            output("\n&ob>> ");
+            currentCommand = 0;
+            step = 0;
+        }
+        catch(SQLException e){
+            throw new IllegalStateException("SQL Parse Error", e);
+        }
+
     }
 
     //----------- * ALL CUSTOM COMMANDS ABOVE THIS LINE * ------------\\
