@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="bb961dab-bb96-40de-a75d-d2868dc8f8ef" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/AirlineSQL/com/woakley/AirlineCommandProcessor.class" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/woakley/AirlineCommandProcessor.java" afterPath="$PROJECT_DIR$/src/com/woakley/AirlineCommandProcessor.java" />
-    </list>
+    <list default="true" id="bb961dab-bb96-40de-a75d-d2868dc8f8ef" name="Default" comment="" />
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -34,7 +29,7 @@
       <file leaf-file-name="AirlineCommandProcessor.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/com/woakley/AirlineCommandProcessor.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="84">
+            <state relative-caret-position="3570">
               <caret line="238" column="52" lean-forward="false" selection-start-line="238" selection-start-column="52" selection-end-line="238" selection-end-column="52" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -700,12 +695,12 @@
       <option name="presentableId" value="Default" />
       <updated>1498282676777</updated>
       <workItem from="1498282678599" duration="46000" />
-      <workItem from="1498282772190" duration="20481000" />
+      <workItem from="1498282772190" duration="20508000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="20527000" />
+    <option name="totallyTimeSpent" value="20554000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="2560" height="1413" extended-state="6" />
@@ -848,7 +843,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/woakley/AirlineCommandProcessor.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="84">
+        <state relative-caret-position="3570">
           <caret line="238" column="52" lean-forward="false" selection-start-line="238" selection-start-column="52" selection-end-line="238" selection-end-column="52" />
           <folding>
             <element signature="imports" expanded="true" />
